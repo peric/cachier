@@ -1,0 +1,16 @@
+{
+  "data": [
+    {
+      "key": "awesomekey",
+      "value": "Best Value"
+    },
+    {
+      "key": "awesomekey1",
+      "value": "Better Value"
+    },
+    {
+      "key": "awesomekey2",
+      "value": "Greatest Value"
+    }
+  ]
+}
