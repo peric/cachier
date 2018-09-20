@@ -31,6 +31,9 @@ At the moment, if we want to add an additional source, we just need to define co
 Application is now fetching only from local JSON files. So if we would like to fetch the data from db or API, we would need additional implementations.
 But in any case, received data would be structured the same as it is now.
 
+### Refreshing system
+It's a bit primitive and it currently works with smaller amount of seconds.
+
 ## Keep in mind
 This is my second GoLang app and I'm still reading my first book about it :)
 

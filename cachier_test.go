@@ -3,6 +3,7 @@ package cachier
 import (
 	"sync"
 	"testing"
+	"time"
 )
 
 func TestSet(t *testing.T) {
@@ -48,4 +49,20 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Errorf("Key 'real' should exist under the source 'real'")
 	}
+}
+
+func TestGetAndSleep(t *testing.T) {
+	Set("real", "real", "I'm real!")
+
+	_, err := Get("real", "real")
+
+	if err != nil {
+		t.Errorf("Key 'real' should exist under the source 'real'")
+	}
+
+	StartRefreshingSources(1 * time.Second)
+
+	time.Sleep(5 * time.Second)
+
+	StopRefreshingSources()
 }

@@ -16,7 +16,7 @@ const TypeJson = "json"
 
 type Source struct {
 	Key                 string
-	RefreshEveryMinutes int
+	RefreshEverySeconds int
 	RefreshedAt         time.Time
 	Type                string
 	Url                 string
@@ -33,8 +33,8 @@ type SourceResponse struct {
 func GetActiveSources() []*Source {
 	var sources []*Source
 
-	sources = append(sources, &Source{Key: SourceKiwi, RefreshEveryMinutes: 60, Type: TypeJson})
-	sources = append(sources, &Source{Key: SourceGoAvio, RefreshEveryMinutes: 120, Type: TypeJson})
+	sources = append(sources, &Source{Key: SourceKiwi, RefreshEverySeconds: 60, Type: TypeJson})
+	sources = append(sources, &Source{Key: SourceGoAvio, RefreshEverySeconds: 3, Type: TypeJson})
 
 	return sources
 }
