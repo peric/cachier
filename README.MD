@@ -13,18 +13,18 @@ import (
 )
 
 func main() {
-	// define sources
+	// define sources 
 	cachier.AddSource(&Source{Key: "kiwi", RefreshEverySeconds: 60, Type: TypeJson})
-	cachier.AddSource(&Source{Key: "goavio", RefreshEverySeconds: 600, Type: TypeJson})
+	cachier.AddSource(&Source{Key: "goavio", RefreshEverySeconds: 600, Type: TypeJson}) 
 	
-	// init cache and method that will refresh sources
+	// init cache and method that will refresh sources 
 	cachier.Init()
 	
-	// set additional data if needed
-    cachier.Set("kiwi", "awesomekey", "Best value")
+	// set additional data if needed 
+	cachier.Set("kiwi", "awesomekey", "Best value") 
 	
-	// get data
-    cachier.Get("kiwi", "awesomekey")
+	// get data 
+	cachier.Get("kiwi", "awesomekey")
 }
 ```
 
