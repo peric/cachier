@@ -9,9 +9,6 @@ import (
 	"time"
 )
 
-const SourceKiwi = "kiwi"
-const SourceGoAvio = "goavio"
-
 const TypeJson = "json"
 
 type Source struct {
@@ -30,22 +27,35 @@ type SourceResponse struct {
 	} `json:"data"`
 }
 
-func GetActiveSources() []*Source {
-	var sources []*Source
+var Sources []*Source
 
-	sources = append(sources, &Source{Key: SourceKiwi, RefreshEverySeconds: 60, Type: TypeJson})
-	sources = append(sources, &Source{Key: SourceGoAvio, RefreshEverySeconds: 3, Type: TypeJson})
+func AddSource(source *Source) {
+	Sources = append(Sources, source)
+}
 
-	return sources
+func RemoveSource(sourceKey string) {
+	indexToRemove := -1
+	for index, source := range Sources {
+		if source.Key == sourceKey {
+			indexToRemove = index
+		}
+	}
+
+	if indexToRemove != -1 {
+		Sources = append(Sources[:indexToRemove], Sources[indexToRemove+1])
+	}
+}
+
+func Purge() {
+	Sources = []*Source{}
 }
 
 func Fetch(source Source) (SourceResponse, error) {
-	// for now, we will read only from file. in later implementation, we can fetch directly from an API, db etc
 	switch source.Type {
 	case TypeJson:
 		return fetchJson(source)
 	default:
-		return SourceResponse{}, fmt.Errorf("%s is not implemented yet", source.Type)
+		return SourceResponse{}, fmt.Errorf("%s type is not supported yet", source.Type)
 	}
 }
 

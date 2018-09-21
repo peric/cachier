@@ -13,26 +13,29 @@ import (
 )
 
 func main() {
+	// define sources
+	cachier.AddSource(&Source{Key: "kiwi", RefreshEverySeconds: 60, Type: TypeJson})
+	cachier.AddSource(&Source{Key: "goavio", RefreshEverySeconds: 600, Type: TypeJson})
+	
+	// init cache and method that will refresh sources
+	cachier.Init()
+	
+	// set additional data if needed
     cachier.Set("kiwi", "awesomekey", "Best value")
-
+	
+	// get data
     cachier.Get("kiwi", "awesomekey")
 }
 ```
 
 ## Tips & Tricks
 
-### Sources
-At the moment, if we want to add an additional source, we just need to define couple of definitions in `handler.go`
-
-* additional constant (i.e. `const SourceTest = "test"`)
-* append new source in `GetActiveSources()` method
-
 ### Source types
 Application is now fetching only from local JSON files. So if we would like to fetch the data from db or API, we would need additional implementations.
 But in any case, received data would be structured the same as it is now.
 
-### Refreshing system
-It's a bit primitive and it currently works with smaller amount of seconds.
+### Refreshing functionality
+It's a bit primitive and it currently works just with seconds.
 
 ## Keep in mind
 This is my second GoLang app and I'm still reading my first book about it :)

@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-type SourceMap struct {
+type sourceMap struct {
 	Data map[string]string
-	m    sync.RWMutex
+	M    sync.RWMutex
 }
 
 var sources []*Source
-var cacheMap = map[string]*SourceMap{}
+var cacheMap = map[string]*sourceMap{}
 var mtx = sync.RWMutex{}
 var ticker = time.Ticker{}
 
-func init() {
-	sources = GetActiveSources()
+func Init() {
+	sources = Sources
 
 	wg := sync.WaitGroup{}
 	for _, source := range sources {
@@ -35,7 +35,7 @@ func buildForSource(source *Source, wg *sync.WaitGroup) {
 	sourceResponse, err := Fetch(*source)
 
 	if err != nil {
-		log.Fatalf("Cannot fetch data from %s", source.Key)
+		log.Fatalf("Cannot fetch data from source: %s", source.Key)
 	}
 
 	for _, record := range sourceResponse.Data {
@@ -59,7 +59,7 @@ func StartRefreshingSources(duration time.Duration) {
 				if int(duration.Seconds()) >= source.RefreshEverySeconds {
 					wg.Add(1)
 					go buildForSource(source, &wg)
-					log.Printf("Updating source '%s'", source.Key)
+					log.Printf("Refreshing source: %s", source.Key)
 				}
 			}
 
@@ -79,7 +79,7 @@ func Set(sourceKey string, dataKey string, dataValue string) {
 
 	if !ok {
 		mtx.Lock()
-		source = &SourceMap{
+		source = &sourceMap{
 			map[string]string{},
 			sync.RWMutex{},
 		}
@@ -87,9 +87,9 @@ func Set(sourceKey string, dataKey string, dataValue string) {
 		mtx.Unlock()
 	}
 
-	source.m.Lock()
+	source.M.Lock()
 	source.Data[dataKey] = dataValue
-	source.m.Unlock()
+	source.M.Unlock()
 }
 
 func Get(sourceKey string, dataKey string) (string, error) {
@@ -98,15 +98,15 @@ func Get(sourceKey string, dataKey string) (string, error) {
 	mtx.RUnlock()
 
 	if !ok {
-		return "", fmt.Errorf("source '%s' does not exist", sourceKey)
+		return "", fmt.Errorf("source does not exist: %s", sourceKey)
 	}
 
-	source.m.RLock()
+	source.M.RLock()
 	value, ok := source.Data[dataKey]
-	source.m.RUnlock()
+	source.M.RUnlock()
 
 	if !ok {
-		return "", fmt.Errorf("value with key '%s' does not exist for source '%s'", dataKey, sourceKey)
+		return "", fmt.Errorf("key \"%s\" does not exist for source \"%s\"", dataKey, sourceKey)
 	}
 
 	return value, nil
