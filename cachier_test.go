@@ -7,17 +7,21 @@ import (
 )
 
 func TestSet(t *testing.T) {
-	Set("real", "real", "I'M real!")
+	realSource := Source{Key: "real", RefreshEverySeconds: 60, Type: TypeJson}
+
+	Set(&realSource, "real", "I'M real!")
 }
 
 func TestConcurrentSet(t *testing.T) {
+	realSource := Source{Key: "real", RefreshEverySeconds: 60, Type: TypeJson}
+
 	wg := sync.WaitGroup{}
 
 	for i := 1; i < 50; i++ {
 		wg.Add(1)
 
 		go func() {
-			Set("real", "real", "I'm real!")
+			Set(&realSource, "real", "I'm real!")
 			wg.Done()
 		}()
 	}
@@ -42,7 +46,9 @@ func TestDataKeyDoesNotExist(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	Set("real", "real", "I'm real!")
+	realSource := Source{Key: "real", RefreshEverySeconds: 60, Type: TypeJson}
+
+	Set(&realSource, "real", "I'm real!")
 
 	_, err := Get("real", "real")
 
@@ -74,7 +80,9 @@ func TestEndToEnd(t *testing.T) {
 
 	StopRefreshingSources()
 
+	mtx.Lock()
 	lastTimeRefreshedAt := goavioSource.RefreshedAt
+	mtx.Unlock()
 
 	diff := lastTimeRefreshedAt.Sub(firstTimeRefreshedAt)
 

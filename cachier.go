@@ -7,13 +7,14 @@ import (
 	"time"
 )
 
-type sourceMap struct {
-	Data map[string]string
-	M    sync.RWMutex
+type cacheSourceMap struct {
+	data   map[string]string
+	source *Source
+	mtx    sync.RWMutex
 }
 
-var sources []*Source
-var cacheMap = map[string]*sourceMap{}
+var cacheMap = map[string]*cacheSourceMap{}
+var sources map[string]*Source
 var mtx = sync.RWMutex{}
 var ticker = time.Ticker{}
 
@@ -39,10 +40,12 @@ func buildForSource(source *Source, wg *sync.WaitGroup) {
 	}
 
 	for _, record := range sourceResponse.Data {
-		Set(source.Key, record.Key, record.Value)
+		Set(source, record.Key, record.Value)
 	}
 
+	mtx.Lock()
 	source.RefreshedAt = time.Now()
+	mtx.Unlock()
 
 	wg.Done()
 }
@@ -72,24 +75,25 @@ func StopRefreshingSources() {
 	ticker.Stop()
 }
 
-func Set(sourceKey string, dataKey string, dataValue string) {
+func Set(source *Source, dataKey string, dataValue string) {
 	mtx.RLock()
-	source, ok := cacheMap[sourceKey]
+	cachedSource, ok := cacheMap[source.Key]
 	mtx.RUnlock()
 
 	if !ok {
 		mtx.Lock()
-		source = &sourceMap{
+		cachedSource = &cacheSourceMap{
 			map[string]string{},
+			source,
 			sync.RWMutex{},
 		}
-		cacheMap[sourceKey] = source
+		cacheMap[source.Key] = cachedSource
 		mtx.Unlock()
 	}
 
-	source.M.Lock()
-	source.Data[dataKey] = dataValue
-	source.M.Unlock()
+	cachedSource.mtx.Lock()
+	cachedSource.data[dataKey] = dataValue
+	cachedSource.mtx.Unlock()
 }
 
 func Get(sourceKey string, dataKey string) (string, error) {
@@ -101,9 +105,9 @@ func Get(sourceKey string, dataKey string) (string, error) {
 		return "", fmt.Errorf("source does not exist: %s", sourceKey)
 	}
 
-	source.M.RLock()
-	value, ok := source.Data[dataKey]
-	source.M.RUnlock()
+	source.mtx.RLock()
+	value, ok := source.data[dataKey]
+	source.mtx.RUnlock()
 
 	if !ok {
 		return "", fmt.Errorf("key \"%s\" does not exist for source \"%s\"", dataKey, sourceKey)

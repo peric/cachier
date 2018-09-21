@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"sync"
 	"time"
 )
 
@@ -17,7 +16,6 @@ type Source struct {
 	RefreshedAt         time.Time
 	Type                string
 	Url                 string
-	m                   sync.Mutex
 }
 
 type SourceResponse struct {
@@ -27,27 +25,18 @@ type SourceResponse struct {
 	} `json:"data"`
 }
 
-var Sources []*Source
+var Sources map[string]*Source
 
 func AddSource(source *Source) {
-	Sources = append(Sources, source)
+	Sources[source.Key] = source
 }
 
 func RemoveSource(sourceKey string) {
-	indexToRemove := -1
-	for index, source := range Sources {
-		if source.Key == sourceKey {
-			indexToRemove = index
-		}
-	}
-
-	if indexToRemove != -1 {
-		Sources = append(Sources[:indexToRemove], Sources[indexToRemove+1])
-	}
+	delete(Sources, sourceKey)
 }
 
 func Purge() {
-	Sources = []*Source{}
+	Sources = map[string]*Source{}
 }
 
 func Fetch(source Source) (SourceResponse, error) {
