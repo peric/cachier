@@ -14,8 +14,8 @@ import (
 
 func main() {
 	// define sources 
-	cachier.AddSource(&Source{Key: "kiwi", RefreshEverySeconds: 60, Type: TypeJson})
-	cachier.AddSource(&Source{Key: "goavio", RefreshEverySeconds: 600, Type: TypeJson}) 
+	cachier.AddSource(&Source{Key: "kiwi", RefreshEverySeconds: 60, Type: cachier.TypeJson})
+	cachier.AddSource(&Source{Key: "goavio", RefreshEverySeconds: 600, Type: cachier.TypeJson}) 
 	
 	// init cache and method that will refresh sources 
 	cachier.Init()
