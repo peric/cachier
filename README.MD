@@ -10,6 +10,7 @@
 ```go
 import (
     "github.com/peric/cachier"
+    "fmt"
 )
 
 func main() {
@@ -20,11 +21,16 @@ func main() {
 	// init cache and method that will refresh sources 
 	cachier.Init()
 	
+	// get already initialized data
+	value0 := cachier.Get("kiwi", "awesomekey")
+	fmt.Println(value0)
+	
 	// set additional data if needed 
-	cachier.Set("kiwi", "awesomekey", "Best value") 
+	cachier.Set("kiwi", "awesomekey3", "Best value") 
 	
 	// get data 
-	cachier.Get("kiwi", "awesomekey")
+	value1 := cachier.Get("kiwi", "awesomekey3")
+	fmt.Println(value1)
 }
 ```
 
